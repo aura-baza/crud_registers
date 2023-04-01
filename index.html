@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crud Registers</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <h1 class="title">Registros</h1>
+    <div class="container">
+        <div class="container__form">
+            <form action="" class="formulario">
+                <h1 class="title__form">Datos Personales</h1>
+                <div class="container__input">
+                    <label class="label" for="">Nombres</label>
+                    <input type="text" class="input">
+                </div>
+                <div class="container__input">
+                    <label class="label" for="">Apellidos</label>
+                    <input type="text" class="input">
+                </div>
+                <div class="container__input">
+                    <label class="label" for="">Correo</label>
+                    <input type="email" class="input">
+                </div>
+                <div class="container__input">
+                    <label class="label" for="">Documento</label>
+                    <input type="number" class="input">
+                </div>
+                <button class="save">Guardar</button>
+                <div class="container__btn_edit">
+                <button class="save btn_cancel ocult_btn">Cancelar</button>
+                <button class="save btn_update ocult_btn">Actualizar</button>
+                </div>
+            </form>
+        </div>
+        <div class="container__registers">
+            <div class="container__search">
+                <div class="records">
+                    <span class="title_records">Todos los registros:</span>
+                    <span class="users"></span>
+                </div>
+                <div class="search">
+                    <input type="text" class="c_search" placeholder="buscar"> 
+                    <span><i class="fa-sharp fa-solid fa-trash" title="Eliminar todo"></i></span>
+                </div>
+               </div>            
+                <div class="container__show__records">
+                    <div class="container__cards">
+                    </div>
+                </div>
+        </div>
+    </div>
+    <script src="js/index.js"></script>
+</body>
+</html>
