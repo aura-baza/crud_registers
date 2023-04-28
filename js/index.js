@@ -205,7 +205,7 @@ window.addEventListener("DOMContentLoaded", () => {
       containerCard.classList.remove("container__show__records__not__font");
       
     }else{
-      containerCard.innerText="No se encontraron registros";
+      containerCard.innerHTML="No se encontraron registros";
       containerCard.classList.add("container__show__records__not__font");
     }
   }
