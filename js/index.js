@@ -1,29 +1,38 @@
 window.addEventListener("DOMContentLoaded", () => {
   //tremos los nodos o etiquetas que utilizaremos del html.
-  const inputvalue = document.querySelectorAll(".input");//en la obtencion de estos inputs traenos todos, ya que tienen la misma clase.
-  const containerCard = document.querySelector(".container__cards");//este contenedor es traido porque aquí es donde pintaremos las cards.
+  const inputvalue = document.querySelectorAll(".input"); //en la obtencion de estos inputs traenos todos, ya que tienen la misma clase.
+  const containerCard = document.querySelector(".container__cards"); //este contenedor es traido porque aquí es donde pintaremos las cards.
   const btnSave = document.querySelector(".save");
   const btnUpdate = document.querySelector(".btn_update");
   const btnCancel = document.querySelector(".btn_cancel");
-  const countUser = document.querySelector(".users");//este es el span donde mostraremos un conteo de las personas registradas.
-  const formulario = document.querySelector(".formulario");// este solo lo obtuvimos para resetearlo luego de guardar un usuario.
-  const search = document.querySelector(".c_search");//input de busqueda.
+  const countUser = document.querySelector(".users"); //este es el span donde mostraremos un conteo de las personas registradas.
+  const formulario = document.querySelector(".formulario"); // este solo lo obtuvimos para resetearlo luego de guardar un usuario.
+  const search = document.querySelector(".c_search"); //input de busqueda.
   const deleteAll = document.querySelector(".fa-trash");
-  const container__registers = document.querySelector(".container__registers");//obtenido para deshabilitar evento del cursor. 
+  const container__registers = document.querySelector(".container__registers"); //obtenido para deshabilitar evento del cursor.
+  const container__modal = document.querySelector(".container__modal");
+  const modal__message = document.querySelector(".modal__message");
+  const container__btns = document.querySelector(".container__btns");
+  const close_modal = document.querySelector(".close_modal");
 
-  let newPeople = [];//array creado para crear un usuario.
-  let dataLocal;//variable declarada para guardar  en el localStorage cada usuario creado.
-  let dataLocalActualizate = JSON.parse(localStorage.getItem("users")) || [];//
+  let newPeople = []; //array creado para crear un usuario.
+  let dataLocal; //variable declarada para guardar  en el localStorage cada usuario creado.
+  let dataLocalActualizate = JSON.parse(localStorage.getItem("users")) || []; //
   let changeBtn = false;
-  getPeopleLocalStorage(dataLocalActualizate);//obtener usuarios del localStorage.
-  eventBotons();//dar evento a los botones de las cards.
+  getPeopleLocalStorage(dataLocalActualizate); //obtener usuarios del localStorage.
+  eventBotons(); //dar evento a los botones de las cards.
 
   btnSave.addEventListener("click", (e) => {
+    container__btns.innerHTML="";
     //este evento en el boton guardar ejecuta dicha funcion y nuevamente le da eventos a los botones.
     e.preventDefault();
     if (validateFields()) {
+      container__modal.style.display="flex";
       //si hay campos vacíos manda la alerta.
-      alert("Algunos campos están vacíos, llene todos los campos");
+      modal__message.textContent="Algunos campos están vacíos, llene todos los campos";
+      close_modal.addEventListener("click", ()=>{
+        container__modal.style.display="none";
+      })
     } else {
       //de lo contrario crea un usuario y damos eventos a los botones.
       createPeople();
@@ -38,7 +47,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function createPeople() {
     //en esta funcion primero verificamos que el documento ingresado no haya sido ingresado anteriormente.
-    const userFind =dataLocal.find((u) => inputvalue[3].value === u.document) || "";
+    const userFind =
+      dataLocal.find((u) => inputvalue[3].value === u.document) || "";
     if (userFind !== "") {
       alert("El documento ingresado ya está en el sistema");
     } else {
@@ -112,20 +122,31 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function deletePeople(documentEvent) {
-    let done = confirm("¿seguro desea eliminar este usuario?");
-    if (done) {
-      //convertimos de json a objeto. lo recorremos para verificar si el documento seleccionado es igual y lo eliminamos
-      dataLocal = JSON.parse(localStorage.getItem("users"));
-      for (let i = 0; i < dataLocal.length; i++) {
-        if (dataLocal[i].document === documentEvent) {
-          dataLocal.splice(i, 1);
-          break;
-        }
+    //convertimos de json a objeto. lo recorremos para verificar si el documento seleccionado es igual y lo eliminamos
+    dataLocal = JSON.parse(localStorage.getItem("users"));
+    for (let i = 0; i < dataLocal.length; i++) {
+      if (dataLocal[i].document === documentEvent) {
+        dataLocal.splice(i, 1);
+        break;
       }
     }
     saveDataLocalStorage();
     getPeopleLocalStorage(dataLocal);
     eventBotons();
+  }
+  function createBtnsModal() {
+    container__btns.innerHTML = "";
+    container__btns.innerHTML = `
+    <button class="btn btn_aceptar">Aceptar</button>
+    <button class="btn btn_cancelar_modal">Cancelar</button>
+    `;
+    const btn_cancelar_modal=document.querySelector(".btn_cancelar_modal");
+    btn_cancelar_modal.addEventListener("click", ()=>{
+      container__modal.style.display="none";
+    });
+    close_modal.addEventListener("click", ()=>{
+      container__modal.style.display="none";
+    });
   }
 
   function editPeople(documentEvent) {
@@ -164,7 +185,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const btn = array_btn_delete[i];
       btn.addEventListener("click", (e) => {
         const id = e.currentTarget.id;
-        deletePeople(id);
+        container__modal.style.display="flex";
+        createBtnsModal();
+        modal__message.textContent="¿Está seguro que desea eliminar este usuario?";
+        const btn_aceptar=document.querySelector(".btn_aceptar");
+        btn_aceptar.addEventListener("click" , ()=>{
+          deletePeople(id);
+          container__modal.style.display="none";
+        });
       });
     }
   }
@@ -198,14 +226,17 @@ window.addEventListener("DOMContentLoaded", () => {
     eventBotons();
   });
   function searchPeople(name_filter) {
-    let name_filter_no_spaces=name_filter.replace(/ /g, "");
-    const arrayFilter = dataLocal.filter((user) =>(user.name + user.lastName).replace(/ /g,"").includes(name_filter_no_spaces));
-    if (arrayFilter.length>0) {
+    let name_filter_no_spaces = name_filter.replace(/ /g, "");
+    const arrayFilter = dataLocal.filter((user) =>
+      (user.name + user.lastName)
+        .replace(/ /g, "")
+        .includes(name_filter_no_spaces)
+    );
+    if (arrayFilter.length > 0) {
       getPeopleLocalStorage(arrayFilter);
       containerCard.classList.remove("container__show__records__not__font");
-      
-    }else{
-      containerCard.innerHTML="No se encontraron registros";
+    } else {
+      containerCard.innerHTML = "No se encontraron registros";
       containerCard.classList.add("container__show__records__not__font");
     }
   }
@@ -215,12 +246,18 @@ window.addEventListener("DOMContentLoaded", () => {
     eventBotons();
   });
   function deleteAllsRecords() {
-    let done = confirm("Seguro desea eliminar todos los registros");
-    if (done) {
       localStorage.removeItem("users");
       dataLocal = JSON.parse(localStorage.getItem("users")) || [];
       getPeopleLocalStorage(dataLocal);
-    }
   }
-  deleteAll.addEventListener("click", deleteAllsRecords);
+  deleteAll.addEventListener("click", ()=>{
+    container__modal.style.display="flex";
+        createBtnsModal();
+        modal__message.textContent="¿Está seguro que desea eliminar todos los registros?";
+        const btn_aceptar=document.querySelector(".btn_aceptar");
+        btn_aceptar.addEventListener("click" , ()=>{
+          deleteAllsRecords();
+          container__modal.style.display="none";
+        });
+  });
 });
