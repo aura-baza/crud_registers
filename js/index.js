@@ -19,6 +19,7 @@ window.addEventListener("DOMContentLoaded", () => {
   let dataLocal; //variable declarada para guardar  en el localStorage cada usuario creado.
   let dataLocalActualizate = JSON.parse(localStorage.getItem("users")) || []; //
   let changeBtn = false;
+  let card_event;
   getPeopleLocalStorage(dataLocalActualizate); //obtener usuarios del localStorage.
   eventBotons(); //dar evento a los botones de las cards.
 
@@ -29,7 +30,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (validateFields()) {
       container__modal.style.display="flex";
       //si hay campos vacíos manda la alerta.
-      modal__message.textContent="Algunos campos están vacíos, llene todos los campos";
+      showMessageModal("Algunos campos están vacíos, llene todos los campos");
       close_modal.addEventListener("click", ()=>{
         container__modal.style.display="none";
       })
@@ -47,11 +48,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function createPeople() {
     //en esta funcion primero verificamos que el documento ingresado no haya sido ingresado anteriormente.
-    const userFind =
-      dataLocal.find((u) => inputvalue[3].value === u.document) || "";
-    if (userFind !== "") {
-      alert("El documento ingresado ya está en el sistema");
-    } else {
+    const userFind =dataLocal.find((u) => inputvalue[3].value === u.document) || "";
+      // let confimEmail=inputvalue[2].value.includes("@");
+      if (userFind !=="") {
+        showMessageModal("El documento ingresado ya está en el sistema");
+      } else if(inputvalue[2].value.includes("@") ===false){
+        showMessageModal("El correo ingresado no tiene el simbolo arroba (@)");
+    }else {
       const people = {
         //si el documento no está ingresado, procedemos a crear el nuevo usuario; capturando cada valor ingresado en el input correspondiente.
         name: `${inputvalue[0].value.toLowerCase()}`,
@@ -74,7 +77,6 @@ window.addEventListener("DOMContentLoaded", () => {
       formulario.reset();
     }
   }
-
   function getPeopleLocalStorage(arrayUsers) {
     containerCard.innerHTML = "";
     dataLocal = JSON.parse(localStorage.getItem("users")) || [];
@@ -148,8 +150,17 @@ window.addEventListener("DOMContentLoaded", () => {
       container__modal.style.display="none";
     });
   }
-
+ function showMessageModal(message) {
+  container__modal.style.display="flex";
+  modal__message.textContent=message;
+  close_modal.addEventListener("click", ()=>{
+    container__modal.style.display="none";
+  })
+ }
   function editPeople(documentEvent) {
+    if (window.innerWidth<=516) {
+      window.scrollBy(0,-window.visualViewport.pageTop);
+    }
     //quitamos eventos del cursor.
     container__registers.style.pointerEvents = "none";
     const findUser = dataLocal.find((u) => documentEvent === u.document);
@@ -178,6 +189,7 @@ window.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", (e) => {
         //currentTarget nos muestra el boton o nodo en cuestión al que se le está dando el evento.
         const id = e.currentTarget.id;
+        card_event=e.target.parentElement.parentElement;
         editPeople(id);
       });
     }
@@ -187,7 +199,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const id = e.currentTarget.id;
         container__modal.style.display="flex";
         createBtnsModal();
-        modal__message.textContent="¿Está seguro que desea eliminar este usuario?";
+        showMessageModal("¿Está seguro que desea eliminar este usuario?");
         const btn_aceptar=document.querySelector(".btn_aceptar");
         btn_aceptar.addEventListener("click" , ()=>{
           deletePeople(id);
@@ -198,12 +210,17 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   function btn_update_user(indexObjet) {
     if (changeBtn) {
+      if (window.innerWidth<=516) {
+        window.scrollBy(0, card_event.getBoundingClientRect().top -100);
+      }
       dataLocal[indexObjet].name = inputvalue[0].value.toLowerCase();
       dataLocal[indexObjet].lastName = inputvalue[1].value.toLowerCase();
       dataLocal[indexObjet].email = inputvalue[2].value.toLowerCase();
 
       if (validateFields()) {
-        alert("Hay campos vacios");
+        showMessageModal("Hay campos vacios");
+      }else if(inputvalue[2].value.includes("@") ===false){
+          showMessageModal("El correo ingresado no tiene el simbolo arroba (@)");
       } else {
         saveDataLocalStorage();
         getPeopleLocalStorage(dataLocal);
